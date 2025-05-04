@@ -1,4 +1,4 @@
-# this code just checks how many 0 and 1 there is in the data set
+# This code checks how many 0 and 1 there are in the HAS_GOING_CONCERN_MODIFICATION column
 import pandas as pd
 from pathlib import Path
 
@@ -10,14 +10,19 @@ file_path = data_folder / "features.xlsx"
 # Read Excel file
 df = pd.read_excel(file_path)
 
-# Get last column name
-last_column = df.columns[-1]
+# Look for specific column
+target_column = "HAS_GOING_CONCERN_MODIFICATION"
 
-# Count 0s and 1s in the last column
-count_0 = (df[last_column] == 0).sum()
-count_1 = (df[last_column] == 1).sum()
-
-print(f"Count of 0s in last column ('{last_column}'): {count_0}")
-print(f"Count of 1s in last column ('{last_column}'): {count_1}")
-
-print(f'Percentage of positives is {(count_1/(count_0 + count_1)) * 100}%')
+# Verify column exists
+if target_column in df.columns:
+    # Count 0s and 1s in the target column
+    count_0 = (df[target_column] == 0).sum()
+    count_1 = (df[target_column] == 1).sum()
+    
+    print(f"Count of 0s in column ('{target_column}'): {count_0}")
+    print(f"Count of 1s in column ('{target_column}'): {count_1}")
+    print(f'Percentage of positives is {(count_1/(count_0 + count_1)) * 100:.2f}%')
+else:
+    print(f"Error: Column '{target_column}' not found in the dataset.")
+    print("Available columns:")
+    print(df.columns.tolist())
