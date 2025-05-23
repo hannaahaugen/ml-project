@@ -7,15 +7,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
-##Dataset cleaning##
-# Load data
-filename = ''
-dataframe = pd.read_excel('')
-print(dataframe.head())
-
+#Load data
+filename = 'dataset_MLproject.xlsx'
+df= pd.read_excel('dataset_MLproject-15column.xlsx')
 df = df.drop(columns=['auditor_name'])
 df = df.drop(columns=['AUDIT_OPINION_TYPE'])
-df = df.drop(columns=['opinion_fiscal_year_end'])  
+df = df.drop(columns=['opinion_fiscal_year_end'])     
+
 
 #TARGET VALUE BEFORE CLEANING
 counts = df['HAS_GOING_CONCERN_MODIFICATION'].value_counts()
@@ -56,7 +54,7 @@ df = df.drop(columns=['IPO_DATE','opinion_signature_date'])
 
 print(df.isnull().sum())
 
-#encoding and changing the datatype for year_ended
+#encoding categorical and changing the datatype for year_ended
 df = pd.get_dummies(df, columns=['HEADQUARTER_COUNTRY_CODE', 'auditor_home_office_state' ], drop_first=True) ##doubcheck, make sure the benchmark country is the same for both variables
 
 
