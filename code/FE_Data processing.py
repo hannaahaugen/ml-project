@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 #Load data
 filename = 'dataset_MLproject.xlsx'
-df= pd.read_excel('dataset_MLproject-15column.xlsx')
+df= pd.read_excel('dataset_MLproject.xlsx')
 df = df.drop(columns=['auditor_name'])
 df = df.drop(columns=['AUDIT_OPINION_TYPE'])
 df = df.drop(columns=['opinion_fiscal_year_end'])     
