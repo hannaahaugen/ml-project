@@ -87,9 +87,11 @@ df['year_ended'] = df['year_ended'].astype('int64')
 
 print(df.isnull().sum())
 
-#SIC inspection
+# SIC inspection
 counts = df['SIC_CODE_FKEY'].value_counts()
 print(counts)
+
+# Define SIC ranges
 sic_ranges = {
     "Agriculture, Forestry and Fishing": (100, 999),
     "Mining": (1000, 1499),
@@ -111,27 +113,44 @@ def map_sic_to_division(sic_code):
         if start <= sic_code <= end:
             return division
     return "Unknown"  # For codes outside the defined ranges
-    
+
 # Apply the mapping function
 df["SIC_Division"] = df["SIC_CODE_FKEY"].apply(map_sic_to_division)
 
-#Categorical features- encoding
-categorical_features = ['HEADQUARTER_COUNTRY_CODE', 'auditor_home_office_state', 
+# Categorical features - encoding
+categorical_features = ['HEADQUARTER_COUNTRY_CODE', 'auditor_home_office_state',
                         'AUDIT_OPINION_TYPE_FKEY', 'SIC_Division']
 encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
 encoded_categorical = encoder.fit_transform(df[categorical_features])
 encoded_categorical_df = pd.DataFrame(encoded_categorical, columns=encoder.get_feature_names_out(categorical_features))
+
 # Drop original categorical columns and add the encoded ones
 df = df.drop(columns=categorical_features)
 df = pd.concat([df, encoded_categorical_df], axis=1)
 
 # Continuous features - scaling
-from sklearn.preprocessing import StandardScaler
-continuous_features = ['TOTAL_EMPLOYEES', 'MOST_RECENT_MARKET_CAP_USD', 'REVENUE_USD', 'NET_INCOME_USD', 'TOTAL_ASSETS_USD', 'AUDIT_FEES_USD', 'AUDIT_RELATED_FEES_USD', 'MOST_RECENT_TAX_FEES_USD', 'MOST_RECENT_OTHER_FEES_USD', 'MOST_RECENT_NON_AUDIT_FEES_USD', 'TOTAL_FEES_USD', 'NUMBER_OF_AUDITORS']
-df[continuous_features] = df.fit_transform(data[continuous_features])
+continuous_features = [
+    'TOTAL_EMPLOYEES', 'MOST_RECENT_MARKET_CAP_USD', 'REVENUE_USD', 'NET_INCOME_USD', 
+    'TOTAL_ASSETS_USD', 'AUDIT_FEES_USD', 'AUDIT_RELATED_FEES_USD', 'MOST_RECENT_TAX_FEES_USD', 
+    'MOST_RECENT_OTHER_FEES_USD', 'MOST_RECENT_NON_AUDIT_FEES_USD', 'TOTAL_FEES_USD', 
+    'NUMBER_OF_AUDITORS'
+]
+scaler = StandardScaler()
+df[continuous_features] = scaler.fit_transform(df[continuous_features])
 
-#checking data
-print(df.dtypes)
+##SETTING UP FOR MODELS (probably better to first export a dataframe that was cleaned and edited so no need to load the code every time)##
+print(df.head())
+col = df.pop("HAS_GOING_CONCERN_MODIFICATION")
+df.insert(len(df.columns), "HAS_GOING_CONCERN_MODIFICATION", col)
+
+dataset = df.to_numpy()
+X = dataset[:, :-1]  # the features
+Y = dataset[:, -1]  # the labels
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2)
+
+# Apply SMOTE to balance the training data
+smote = SMOTE(random_state=2)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 
 
 
